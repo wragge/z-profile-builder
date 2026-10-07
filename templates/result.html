@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Z-Profile Site Builder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.min.css')}}">
+    <link href="{{ url_for('static', filename='css/fontawesome.min.css')}}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/brands.min.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/solid.min.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/regular.min.css') }}" rel="stylesheet" />
+    <script defer data-domain="wraggelabs.com" src="https://plausible.io/js/script.js"></script>
+    <script type="module">
+      const poll = async function (fn, fnCondition, ms) {
+        let response = await fn();
+        let result = await response.json();
+        let retries = 0;
+        while (fnCondition(result) && retries < 100) {
+          await wait(ms);
+          response = await fn();
+          result = await response.json();
+          retries += 1;
+          console.log(retries);
+        }
+        return result;
+      };
+
+      const wait = function (ms = 1000) {
+        return new Promise(resolve => {
+          setTimeout(resolve, ms);
+        });
+      };
+      let fetchReport = () => fetch("{{url_for("task_result", id=result_id)}}");
+      let validate = result => !result.ready;
+      let result = await poll(fetchReport, validate, 3000);
+      let waiting = document.querySelector("#in-progress");
+      waiting.classList.add("is-hidden");
+      if (result.successful) {
+        let button = document.querySelector("#download-site");
+        let message = document.querySelector("#success");
+        message.classList.remove("is-hidden");
+        button.classList.remove("is-hidden");
+      } else {
+        let message = document.querySelector("#error");
+        if (result.ready) {
+          message.innerText = `An error occurred: ${result.value}`;
+        } else {
+          message.innerText = `An error occurred: build did not complete`;
+        }
+        message.classList.remove("is-hidden");
+      }
+      document.querySelector("#start-again").classList.remove("is-hidden");
+    </script>
+  </head>
+  <body>
+  <section class="section">
+    <div class="container">
+      <div class="columns">
+        <div class="column is-half is-offset-one-quarter">
+          <h1 class="title is-1 has-text-weight-light">
+            Z-Profile Site Builder
+          </h1>
+          <div id="in-progress" class="notification is-info"><span class="icon-text"><span class="icon"><i class="fa-solid fa-person-digging fa-beat-fade fa-xl"></i></span> <span>Please wait while your site is being built... </span></span></div>
+          <div id="error" class="notification is-danger is-hidden"></div>
+          <div id="success" class="notification is-success is-hidden">Success! Your site has been built.</div>
+          {% set filename = "zprofile-" + user_id + ".zip" %}
+          <p><a href="{{url_for("download_file", filename=filename)}}" id="download-site" class="button is-link is-large is-hidden" download>Download your site</a></p>
+          <p id="start-again" class="mt-4 is-size-4 has-text-right is-hidden"><a href="{{url_for("home")}}">start again <span class="icon"><i class="fa-solid fa-chevron-right"></i></span></a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer class="footer">
+    <div class="container">
+    <div class="columns">
+        <div class="column is-one-quarter is-offset-one-quarter content">
+          <p><a href="https://wraggelabs.com/z-profile-docs/">Read the documentation</a></p>
+          <p><a href="https://github.com/wragge/z-profile/discussions">Ask a question</a></p>
+        </div>
+        <div class="column is-one-quarter content">
+          <p>Created by <a href="https://timsherratt.au">Tim Sherratt</a> in 2026.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  </body>
+</html>
