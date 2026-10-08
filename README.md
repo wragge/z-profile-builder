@@ -16,5 +16,6 @@ The Zotero key and secret can be obtained by [registering an app](https://www.zo
 
 You'd also need to `git clone` the [z-profile repository](https://github.com/wragge/z-profile) into the working directory.
 
+## Licence
 
-
+This app was created by [Tim Sherratt](https://timsherratt.au) in 2026. All original code is dedicated to the public domain under a CC0 1.0 Universal Deed.
